@@ -1,11 +1,11 @@
 package com.example.gemini_clone
 
 import android.os.Bundle
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.EditText
+import android.widget.ImageButton
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
@@ -13,14 +13,21 @@ import com.google.firebase.Firebase
 import com.google.firebase.ai.GenerativeModel
 import com.google.firebase.ai.ai
 import com.google.firebase.ai.type.GenerativeBackend
+import com.stfalcon.chatkit.messages.MessagesList
+import com.stfalcon.chatkit.messages.MessagesListAdapter
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 
 class MainActivity : AppCompatActivity() {
     lateinit var searchField: EditText;
-    lateinit var resultTV: TextView;
     lateinit var sendBtn: ImageButton;
     lateinit var generativeModel: GenerativeModel;
+    lateinit var sendCard: CardView
+    lateinit var messagesList: MessagesList
+    lateinit var us: User
+    lateinit var gemini: User
+    lateinit var adapter: MessagesListAdapter<Message>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,23 +41,41 @@ class MainActivity : AppCompatActivity() {
 
         searchField = findViewById(R.id.editTextText)
         sendBtn = findViewById(R.id.imageButton)
-        resultTV = findViewById(R.id.textView)
+        sendCard = findViewById(R.id.cardView3)
+        messagesList = findViewById(R.id.messagesList)
+
+        adapter =
+            MessagesListAdapter<Message>("1", null)
+        messagesList.setAdapter(adapter)
+
+        us = User(id = "1", name = "User", avatar = "")
+        gemini = User(id = "2", name = "Gemini", avatar = "")
 
         sendBtn.setOnClickListener{
             lifecycleScope.launch{
                 performAction(searchField.text.toString())
             }
 
-            searchField.text.clear()
+        }
+
+        sendCard.setOnClickListener{
+            lifecycleScope.launch{
+                performAction(searchField.text.toString())
+            }
 
         }
 
         loadModel();
     }
+
     private suspend fun performAction(question: String){
+        searchField.text.clear()
+        var message: Message = Message(id = "M1", text = question, createdAt = Calendar.getInstance().time, user = us)
+        adapter.addToStart(message, true)
         val response = generativeModel.generateContent(question)
+        var message2: Message = Message(id = "M2", text = response.text.toString(), createdAt = Calendar.getInstance().time, user = gemini )
+        adapter.addToStart(message2, true)
         print(response.text)
-        resultTV.text = response.text
     }
 
     private fun loadModel(){
