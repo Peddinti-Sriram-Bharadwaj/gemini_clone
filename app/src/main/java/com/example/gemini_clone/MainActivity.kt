@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.speech.tts.TextToSpeech
 import android.util.Log
+import android.view.Menu
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -32,6 +33,7 @@ import androidx.core.net.toUri
 import com.google.firebase.ai.type.content
 import java.net.URI
 import java.util.Locale
+import android.graphics.drawable.ColorDrawable
 
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
@@ -56,6 +58,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.green, null)))
 
         searchField = findViewById(R.id.editTextText)
         sendBtn = findViewById(R.id.imageButton)
@@ -184,8 +188,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             }
         }
-        else{
+    }
 
-        }
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main, menu)
+        return super.onCreateOptionsMenu(menu)
     }
 }
