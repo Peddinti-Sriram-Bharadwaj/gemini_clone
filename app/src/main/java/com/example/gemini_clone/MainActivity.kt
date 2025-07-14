@@ -6,6 +6,7 @@ import android.media.Image
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.widget.EditText
 import android.widget.ImageButton
@@ -30,9 +31,10 @@ import java.util.Calendar
 import androidx.core.net.toUri
 import com.google.firebase.ai.type.content
 import java.net.URI
+import java.util.Locale
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     lateinit var searchField: EditText;
     lateinit var sendBtn: ImageButton;
     lateinit var generativeModel: GenerativeModel;
@@ -43,6 +45,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var adapter: MessagesListAdapter<Message>
     var imageSelected: Boolean = false
     lateinit var selectedImageUri: Uri
+    lateinit var tts: TextToSpeech
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -110,6 +113,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         loadModel();
+
+        tts = TextToSpeech(applicationContext, this)
     }
 
     private suspend fun performAction(question: String){
@@ -143,6 +148,7 @@ class MainActivity : AppCompatActivity() {
             )
             adapter.addToStart(message2, true)
             print(response.text)
+            tts.speak(response.text, TextToSpeech.QUEUE_FLUSH, null, null)
 
 
 
@@ -158,6 +164,7 @@ class MainActivity : AppCompatActivity() {
             )
             adapter.addToStart(message2, true)
             print(response.text)
+            tts.speak(response.text, TextToSpeech.QUEUE_FLUSH, null, null)
         }
     }
 
@@ -166,5 +173,19 @@ class MainActivity : AppCompatActivity() {
         // Create a `GenerativeModel` instance with a model that supports your use case
         generativeModel = Firebase.ai(backend = GenerativeBackend.googleAI())
                 .generativeModel("gemini-2.5-flash")
+    }
+
+    var isTTSAvailable = true
+    override fun onInit(status: Int) {
+        if(status == TextToSpeech.SUCCESS){
+            var result = tts.setLanguage(Locale.US)
+            if(result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED){
+                isTTSAvailable = false
+
+            }
+        }
+        else{
+
+        }
     }
 }
