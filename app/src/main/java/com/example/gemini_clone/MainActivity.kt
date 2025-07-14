@@ -34,6 +34,7 @@ import com.google.firebase.ai.type.content
 import java.net.URI
 import java.util.Locale
 import android.graphics.drawable.ColorDrawable
+import android.view.MenuItem
 
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
@@ -152,8 +153,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             )
             adapter.addToStart(message2, true)
             print(response.text)
-            tts.speak(response.text, TextToSpeech.QUEUE_FLUSH, null, null)
-
+            if(isTTSAvailable && isTTSEnabled) {
+                tts.speak(response.text, TextToSpeech.QUEUE_FLUSH, null, null)
+            }
 
 
         }else {
@@ -168,7 +170,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             )
             adapter.addToStart(message2, true)
             print(response.text)
-            tts.speak(response.text, TextToSpeech.QUEUE_FLUSH, null, null)
+            if(isTTSAvailable && isTTSEnabled) {
+                tts.speak(response.text, TextToSpeech.QUEUE_FLUSH, null, null)
+            }
         }
     }
 
@@ -180,6 +184,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     }
 
     var isTTSAvailable = true
+    var isTTSEnabled = true
     override fun onInit(status: Int) {
         if(status == TextToSpeech.SUCCESS){
             var result = tts.setLanguage(Locale.US)
@@ -193,5 +198,20 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.main, menu)
         return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == R.id.id1){
+            if(isTTSEnabled){
+                isTTSEnabled = false
+                tts.stop()
+                item.setIcon(R.drawable.outline_cancel_24)
+            }
+            else{
+                isTTSEnabled = true
+                item.setIcon(R.drawable.baseline_campaign_24)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 }
